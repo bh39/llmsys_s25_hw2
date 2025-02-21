@@ -74,9 +74,8 @@ class Dropout(Module):
         if not self.training:
             return x
         else:
-            mask = np.random.binomial(1, self.p_dropout, x.shape)
-            return x * mask
-        raise NotImplementedError
+            mask = tensor_from_numpy(np.random.binomial(1, self.p_dropout, x.shape), backend=x.backend)
+            return x * mask * (1 - self.p_dropout)
         ### END YOUR SOLUTION
 
 def RParam(scale, backend, *shape):
