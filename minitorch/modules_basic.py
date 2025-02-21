@@ -33,7 +33,8 @@ class Embedding(Module):
         self.num_embeddings = num_embeddings # Vocab size
         self.embedding_dim  = embedding_dim  # Embedding Dimension
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        init_weight = tensor_from_numpy(np.random.normal(loc=0, scale=1, size=(num_embeddings, embedding_dim)), backend=backend)
+        self.weights = Parameter(init_weight)
         ### END YOUR SOLUTION
     
     def forward(self, x: Tensor):
@@ -47,7 +48,9 @@ class Embedding(Module):
         """
         bs, seq_len = x.shape
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        one_hot_x = one_hot(x, self.num_embeddings)
+        one_hot_x = one_hot_x.view(bs * seq_len, self.num_embeddings)
+        return (one_hot_x @ self.weights.value).view(bs, seq_len, self.embedding_dim)
         ### END YOUR SOLUTION
 
     
@@ -79,7 +82,7 @@ class Dropout(Module):
         ### END YOUR SOLUTION
 
 def RParam(scale, backend, *shape):
-    r = scale * (rand(shape, backend=backend) - 0.5)
+    r = scale * (rand(shape, backend=backend) - 0.5) * 2
     return Parameter(r)
 
 class Linear(Module):
