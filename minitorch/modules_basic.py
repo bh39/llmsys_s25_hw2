@@ -157,5 +157,5 @@ class LayerNorm1d(Module):
         ### BEGIN YOUR SOLUTION
         x_hat = (x - x.mean(dim=1) ) / (x.var(dim=1) + self.eps) ** 0.5
 
-        out = x_hat * self.weights.value + self.bias.value
+        return x_hat * self.weights.value + self.bias.value
         ### END YOUR SOLUTION
