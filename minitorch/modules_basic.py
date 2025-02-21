@@ -71,11 +71,11 @@ class Dropout(Module):
             output : Tensor of shape (*)
         """
         ### BEGIN YOUR SOLUTION
-        if not self.training:
+        if not self.training or self.p_dropout == 0.0:
             return x
         else:
             mask = tensor_from_numpy(np.random.binomial(1, 1 - self.p_dropout, x.shape), backend=x.backend)
-            return x * mask * (1 - self.p_dropout)
+            return x * mask * 1 / (1 - self.p_dropout)
         ### END YOUR SOLUTION
 
 def RParam(scale, backend, *shape):
@@ -138,7 +138,8 @@ class LayerNorm1d(Module):
         self.dim = dim
         self.eps = eps
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        self.weights = Parameter(ones((dim,), backend=backend))
+        self.bias = Parameter(zeros((dim,), backend=backend))
         ### END YOUR SOLUTION
 
     def forward(self, x: Tensor) -> Tensor:
@@ -154,5 +155,7 @@ class LayerNorm1d(Module):
         """
         batch, dim = x.shape
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        x_hat = (x - x.mean(dim=1) ) / (x.var(dim=1) + self.eps) ** 0.5
+
+        out = x_hat * self.weights.value + self.bias.value
         ### END YOUR SOLUTION
