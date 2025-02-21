@@ -74,7 +74,7 @@ class Dropout(Module):
         if not self.training:
             return x
         else:
-            mask = tensor_from_numpy(np.random.binomial(1, self.p_dropout, x.shape), backend=x.backend)
+            mask = tensor_from_numpy(np.random.binomial(1, 1 - self.p_dropout, x.shape), backend=x.backend)
             return x * mask * (1 - self.p_dropout)
         ### END YOUR SOLUTION
 
