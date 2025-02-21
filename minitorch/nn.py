@@ -260,6 +260,6 @@ def softmax_loss(logits: Tensor, target: Tensor) -> Tensor:
     """
     result = None
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError
+    return (logsumexp(logits, -1) - one_hot(target)).sum(dim=-1)
     ### END YOUR SOLUTION
     return result.view(batch_size, )
