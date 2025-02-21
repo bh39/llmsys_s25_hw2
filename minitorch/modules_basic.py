@@ -71,7 +71,7 @@ class Dropout(Module):
             output : Tensor of shape (*)
         """
         ### BEGIN YOUR SOLUTION
-        if self.training:
+        if not self.training:
             return x
         else:
             mask = np.random.binomial(1, self.p_dropout, x.shape)
