@@ -74,6 +74,9 @@ class Dropout(Module):
         raise NotImplementedError
         ### END YOUR SOLUTION
 
+def RParam(scale, backend, *shape):
+    r = scale * (rand(shape, backend=backend) - 0.5)
+    return Parameter(r)
 
 class Linear(Module):
     def __init__(self, in_size: int, out_size: int, bias: bool, backend: TensorBackend):
@@ -91,7 +94,10 @@ class Linear(Module):
         """
         self.out_size = out_size
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        self.has_bias = bias
+        scale = -1 / (in_size ** 0.5)
+        self.weights = RParam(scale, backend, in_size, out_size)
+        self.bias = RParam(scale, backend, out_size) if bias else None
         ### END YOUR SOLUTION
 
     def forward(self, x: Tensor):
@@ -105,7 +111,10 @@ class Linear(Module):
         """
         batch, in_size = x.shape
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        x = x.view(batch, in_size)
+        output = x @ self.weights.value.view(in_size, self.out_size)
+        output = output.view(batch, self.out_size)
+        return output + self.bias.value if self.has_bias else output
         ### END YOUR SOLUTION
 
 
