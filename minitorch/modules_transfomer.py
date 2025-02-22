@@ -107,13 +107,13 @@ class MultiHeadAttention(Module):
         result = None
         
         ### BEGIN YOUR SOLUTION
-        softmax_input = (q @ kT) / ((self.attn_hidden_dim) ** 0.5)
+        softmax_input = (q @ kT) / (self.attn_hidden_dim ** 0.5)
         if self.causal:
             mask = self.create_causal_mask(queries_len)
             softmax_input += mask
 
         result = softmax(softmax_input, dim=3) @ v
-        result = result.permute(0, 2, 1, 3).view(batch_size, queries_len, num_head * q_dim)
+        result = result.permute(0, 2, 1, 3).contiguous().view(batch_size, queries_len, num_head * q_dim)
         ### END YOUR SOLUTION
 
         return result
