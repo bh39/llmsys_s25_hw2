@@ -299,8 +299,13 @@ def generate(model,
             # TODO
             # run the model with current token_ids, and predict the next token (gen_id)
             # hint: obtain the logits of next token, and take the argmax.
-            gen_id = 0
-            raise NotImplementedError("Generation Function Not Implemented Yet")
+            inputs =  minitorch.tensor_from_numpy(np.array(token_ids)[np.newaxis, :], backend)
+            logits = model(idx=inputs)
+
+            batch_size, seq_len, vocab_size = logits.shape
+            logits_next_token = np.array([logits[0, seq_len - 1, i] for i in range(vocab_size)])
+            gen_id = np.argmax(logits_next_token)
+            
             # END ASSIGN2_2
 
             if gen_id == tokenizer.vocab[f'<eos_{tgt_key}>']:
