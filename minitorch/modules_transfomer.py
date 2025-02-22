@@ -214,8 +214,8 @@ class TransformerLayer(Module):
         """
         batch_size, seq_len, n_embd = x.shape
         ### BEGIN YOUR SOLUTION
-        x = x + self.attention(self.ln_1(x))
-        return x + self.ff(self.ln_2(x))
+        x = x + self.attention(self.ln_1(x.view(batch_size * seq_len, n_embd)).view(batch_size, seq_len, n_embd))
+        return x + self.ff(self.ln_2(x.view(batch_size * seq_len, n_embd)).view(batch_size, seq_len, n_embd))
         ### END YOUR SOLUTION
 
 
