@@ -130,8 +130,9 @@ class MultiHeadAttention(Module):
         batch_size, seq_len, n_embd = x.shape
         ### BEGIN YOUR SOLUTION
         q, kT, v = self.project_to_query_key_value(x)
-        output = self.self_attention(q, kT, v)
-        return output
+        att_out = self.self_attention(q, kT, v).view(batch_size * seq_len, n_embd)
+        out = self.out_projection(att_out).view(batch_size, seq_len, n_embd)
+        return self.dropout(out)
         ### END YOUR SOLUTION
 
 
