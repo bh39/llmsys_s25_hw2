@@ -45,12 +45,11 @@ class MultiHeadAttention(Module):
         self.attn_hidden_dim = n_embd // n_head
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
-        # self.q_projection = 
-        # self.k_projection = 
-        # self.v_projection = 
-        # self.out_projection = 
-        # self.dropout = 
+        self.q_projection = Linear(n_embd, n_embd, bias, backend)
+        self.k_projection = Linear(n_embd, n_embd, bias, backend)
+        self.v_projection = Linear(n_embd, n_embd, bias, backend)
+        self.out_projection = Linear(n_embd, n_embd, bias, backend)
+        self.dropout = Dropout(p_dropout)
         ### END YOUR SOLUTION
 
     def create_causal_mask(self, seq_len):
@@ -71,7 +70,18 @@ class MultiHeadAttention(Module):
         """
         batch_size, seq_len, n_embd = x.shape
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        x = x.view(batch_size * seq_len, n_embd)
+
+        # project and unravel
+        q = self.q_projection(x).view(batch_size, seq_len, self.n_head, self.attn_hidden_dim)
+        k = self.k_projection(x).view(batch_size, seq_len, self.n_head, self.attn_hidden_dim)
+        v = self.v_projection(x).view(batch_size, seq_len, self.n_head, self.attn_hidden_dim)
+
+        # permute
+        q = q.permute(0, 2, 1, 3)
+        k = k.permute(0, 2, 1, 3)
+        kT = k.permute(0, 1, 3, 2)
+        v = v.permute(0, 2, 1, 3)
         ### END YOUR SOLUTION
         return q, kT, v
     
@@ -97,7 +107,13 @@ class MultiHeadAttention(Module):
         result = None
         
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        softmax_input = (q @ kT) / ((self.attn_hidden_dim) ** 0.5)
+        if self.causal:
+            mask = self.create_causal_mask(queries_len)
+            softmax_input += mask
+
+        result = softmax(softmax_input, dim=3) @ v
+        result = result.permute(0, 2, 1, 3).view(batch_size, queries_len, num_head * q_dim)
         ### END YOUR SOLUTION
 
         return result
@@ -113,7 +129,9 @@ class MultiHeadAttention(Module):
         """
         batch_size, seq_len, n_embd = x.shape
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError
+        q, kT, v = self.project_to_query_key_value(x)
+        output = self.self_attention(q, kT, v)
+        return output
         ### END YOUR SOLUTION
 
 
